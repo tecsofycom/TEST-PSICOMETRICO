@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Evaluación Psicométrica - Selección Laboral</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js para el Radar de Competencias -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; padding: 0 !important; }
+            .shadow-lg, .shadow-xl, .shadow-md { box-shadow: none !important; }
+            #results { display: block !important; }
+            .page-break { page-break-before: always; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 p-3 md:p-8 min-h-screen">
+
+    <div class="max-w-6xl mx-auto bg-white rounded-2xl shadow-xl overflow-hidden">
+        
+        <!-- HEADER CORPORATIVO -->
+        <header class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white p-6 md:p-10 border-b-4 border-indigo-500">
+            <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <div class="inline-block px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full text-xs font-semibold tracking-wider uppercase mb-2">
+                        Módulo de Reclutamiento & Selección
+                    </div>
+                    <h1 class="text-2xl md:text-4xl font-extrabold tracking-tight">Evaluación Psicométrica Integral</h1>
+                    <p class="text-slate-300 text-sm md:text-base mt-1">Diagnóstico multitarea de 8 dimensiones para la toma de decisiones directivas.</p>
+                </div>
+                <div class="text-right border-l-2 border-slate-700 pl-4 hidden md:block">
+                    <p class="text-xs text-slate-400">VERSIÓN DEL SISTEMA</p>
+                    <p class="text-sm font-bold text-indigo-400">4.5 Executive HR</p>
+                    <p class="text-xs text-slate-400 mt-1">ESTÁNDAR COGNITIVO - ACTITUDINAL</p>
+                </div>
+            </div>
+        </header>
+
+        <div class="p-6 md:p-10">
+            
+            <!-- FORMULARIO DE EVALUACIÓN DE 25 PREGUNTAS -->
+            <form id="quizForm" class="no-print space-y-10" onsubmit="event.preventDefault(); calcularResultados();">
+                
+                <!-- DATOS DEL CANDIDATO -->
+                <div class="bg-slate-50 p-6 rounded-xl border border-slate-200 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Nombre Completo del Candidato</label>
+                        <input type="text" id="nombreCandidato" placeholder="Ej. Juan Pérez" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Puesto al que Postula</label>
+                        <input type="text" id="puestoCandidato" placeholder="Ej. Analista Senior" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-600 uppercase mb-1">Fecha de Evaluación</label>
+                        <input type="date" id="fechaEvaluacion" required class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none text-sm">
+                    </div>
+                </div>
+
+                <!-- MÓDULO 1: INTELIGENCIA -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-indigo-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-indigo-600 text-white rounded-full flex items-center justify-center text-xs">1</span>
+                        Inteligencia & Razonamiento Lógico
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">1. ¿Qué número completa la serie lógica? 3, 7, 15, 31, 63, ...</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="A" required class="mr-2"> 95</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="B" class="mr-2"> 127</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="C" class="mr-2"> 125</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q1" value="D" class="mr-2"> 120</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">2. Si todos los ejecutivos son analíticos y ningún analítico es impulsivo, ¿cuál conclusión es lógicamente válida?</p>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="A" required class="mr-2"> Algunos ejecutivos son impulsivos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="B" class="mr-2"> Ningún ejecutivo es impulsivo.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="C" class="mr-2"> Todos los impulsivos son ejecutivos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q2" value="D" class="mr-2"> Ninguna de las anteriores.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">3. Un proyecto aumenta su avance un 20% cada semana respecto al total. Si a la semana 3 lleva el 60%, ¿en qué semana completará el 100%?</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="A" required class="mr-2"> Semana 4</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="B" class="mr-2"> Semana 5</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="C" class="mr-2"> Semana 6</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q3" value="D" class="mr-2"> Semana 7</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÓDULO 2: RESOLUCIÓN DE PROBLEMAS -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-red-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-red-600 text-white rounded-full flex items-center justify-center text-xs">2</span>
+                        Resolución de Problemas
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">4. A pocas horas de una entrega crucial, descubres un error grave en los datos provistos por otra área. Tu reacción es:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="A" required class="mr-2"> Corregir lo posible, notificar al equipo involucrado y proponer un plan de acción contingente.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="B" class="mr-2"> Reportar el error a la gerencia para deslindar la responsabilidad del retraso.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="C" class="mr-2"> Entregar el reporte sin cambios, indicando que el insumo original tenía inconsistencias.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q4" value="D" class="mr-2"> Pausar la entrega por completo hasta recibir una rectificación formal.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">5. Frente a una reducción imprevista de recursos en tu proyecto, ¿cuál es tu estrategia?</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="A" required class="mr-2"> Priorizar actividades clave, renegociar entregables no esenciales y reasignar esfuerzos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="B" class="mr-2"> Solicitar inmediatamente una excepción presupuestaria argumentando riesgos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="C" class="mr-2"> Reducir la velocidad del proyecto proporcionalmente al receso financiero.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q5" value="D" class="mr-2"> Cancelar la fase actual del proyecto hasta regularizar los fondos.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">6. Cuando dos miembros del equipo entran en conflicto operativo técnico:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="A" required class="mr-2"> Evaluar objetivamente ambas alternativas con base en datos y facilitar un acuerdo técnico.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="B" class="mr-2"> Decidir de forma unilateral la opción más rápida para evitar pérdidas de tiempo.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="C" class="mr-2"> Dejar que resuelvan sus diferencias de forma independiente.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q6" value="D" class="mr-2"> Escoger la postura respaldada por el integrante de mayor antigüedad.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÓDULO 3: COMPRENSIÓN -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-amber-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-amber-600 text-white rounded-full flex items-center justify-center text-xs">3</span>
+                        Comprensión Verbal y Analítica
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">7. Analogía: ESTRATEGIA es a EJECUCIÓN como:</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="A" required class="mr-2"> Plan a Idea</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="B" class="mr-2"> Teoría a Práctica</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="C" class="mr-2"> Éxito a Esfuerzo</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q7" value="D" class="mr-2"> Meta a Proceso</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="text-xs text-slate-500 italic mb-1">"La transformación digital no consiste únicamente en adoptar software moderno, sino en redefinir la cultura organizacional para incorporar agilidad y aprendizaje continuo."</p>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">8. Según el texto, el factor determinante de la transformación digital es:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="A" required class="mr-2"> La adquisición de infraestructura tecnológica de última generación.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="B" class="mr-2"> El cambio en la cultura organizacional y la mentalidad del equipo.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="C" class="mr-2"> La reducción acelerada de costos en licencias de software.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q8" value="D" class="mr-2"> La sustitución completa de procesos manuales por robots.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">9. Antónimo más preciso de la palabra "AMBIGUO" en especificaciones técnicas:</p>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q9" value="A" required class="mr-2"> Cierto</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q9" value="B" class="mr-2"> Explícito / Claro</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q9" value="C" class="mr-2"> Extenso</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q9" value="D" class="mr-2"> Directo</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÓDULO 4: PERSONALIDAD -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-pink-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-pink-600 text-white rounded-full flex items-center justify-center text-xs">4</span>
+                        Personalidad & Estilo de Trabajo
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">10. Ante cambios drásticos en los requerimientos de un proyecto a mitad de ejecución:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q10" value="A" required class="mr-2"> Ajusto rápidamente la planificación sin perder el enfoque en los resultados.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q10" value="B" class="mr-2"> Requiero tiempo para asimilar las modificaciones antes de reiniciar labores.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q10" value="C" class="mr-2"> Expreso mi desacuerdo por la falta de estabilidad en las decisiones.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q10" value="D" class="mr-2"> Intento mantener la estructura original la mayor parte posible.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">11. Tu mecanismo para gestionar picos de alta presión laboral es:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q11" value="A" required class="mr-2"> Priorización metódica por matriz de urgencia e impacto.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q11" value="B" class="mr-2"> Extensión de horarios para abarcar la totalidad de los pendientes.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q11" value="C" class="mr-2"> Delegación inmediata de tareas a colaboradores cercanos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q11" value="D" class="mr-2"> Solicitar reestructuración de fechas límites a la supervisión.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">12. Respecto al feedback crítico sobre tus entregables:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q12" value="A" required class="mr-2"> Lo recibo como una oportunidad objetiva de optimización técnica.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q12" value="B" class="mr-2"> Acepto la retroalimentación, aunque prefiero defender mi enfoque técnico.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q12" value="C" class="mr-2"> Me incomoda si no viene acompañado de una solución explícita.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q12" value="D" class="mr-2"> Asumo las observaciones formalmente sin debatirlas.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÓDULO 5: VOCACIÓN -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-emerald-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-emerald-600 text-white rounded-full flex items-center justify-center text-xs">5</span>
+                        Vocación & Orientación Profesional
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">13. El tipo de logro profesional que más reconforta tu carrera es:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q13" value="A" required class="mr-2"> Liderar transformaciones estructurales o innovaciones tecnológicas.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q13" value="B" class="mr-2"> Desarrollar el talento de otros y formar equipos eficientes.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q13" value="C" class="mr-2"> Resolver problemas complejos con alto nivel de especialización.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q13" value="D" class="mr-2"> Mantener procesos operativos impecables con cero margen de error.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">14. Te sientes plenamente comprometido cuando tus funciones incluyen:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q14" value="A" required class="mr-2"> Diseño estratégico, toma de decisiones y gestión de proyectos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q14" value="B" class="mr-2"> Interacción continua con clientes, aliados o grupos humanos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q14" value="C" class="mr-2"> Análisis profundo de datos, programación o diseño de arquitectura.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q14" value="D" class="mr-2"> Control de calidad, auditoría y seguimiento estricto de normas.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">15. Tu visión a mediano plazo en una organización es:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q15" value="A" required class="mr-2"> Ascender a posiciones de dirección estratégica de áreas.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q15" value="B" class="mr-2"> Consolidarme como un referente/consultor técnico indispensable.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q15" value="C" class="mr-2"> Liderar iniciativas de innovación o nuevos desarrollos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q15" value="D" class="mr-2"> Asegurar la máxima estabilidad operativa en el rol asignado.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÓDULO 6: APTITUDES -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-purple-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-purple-600 text-white rounded-full flex items-center justify-center text-xs">6</span>
+                        Aptitudes & Dominio Competencial
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">16. Capacidad para transmitir conceptos complejos a audiencias no técnicas:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q16" value="A" required class="mr-2"> Alta: Adapto el lenguaje de forma fluida y persuasiva.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q16" value="B" class="mr-2"> Media: Logro hacerme entender en entornos técnicos conocidos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q16" value="C" class="mr-2"> Básica: Prefiero comunicarme por informes o diagramas escritos.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">17. Habilidad de análisis de datos y detección de patrones numéricos:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q17" value="A" required class="mr-2"> Avanzada: Identifico inconsistencias y tendencias rápidamente.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q17" value="B" class="mr-2"> Intermedia: Interpreto indicadores estándar del área.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q17" value="C" class="mr-2"> Elemental: Requiero apoyo en la consolidación de métricas.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">18. Nivel de organización técnica e infraestructura de información:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q18" value="A" required class="mr-2"> Riguroso: Mantengo documentación, versiones y procesos estructurados.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q18" value="B" class="mr-2"> Funcional: Cumplo con los estándares mínimos de orden.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q18" value="C" class="mr-2"> Flexible: Me adapto sobre la marcha sin tanto protocolo formal.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÓDULO 7: INTERESES PERSONALES -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-rose-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-rose-600 text-white rounded-full flex items-center justify-center text-xs">7</span>
+                        Intereses Personales & Aprendizaje
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">19. En tus actividades de formación autodidacta priorizas:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q19" value="A" required class="mr-2"> Tendencias tecnológicas, arquitectura de sistemas e innovación.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q19" value="B" class="mr-2"> Liderazgo, inteligencia emocional y gestión de equipos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q19" value="C" class="mr-2"> Metodologías de proyectos, finanzas y estrategia comercial.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q19" value="D" class="mr-2"> Normativas, estándares de calidad y optimización de recursos.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">20. Tipo de proyectos que capturan mayormente tu atención:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q20" value="A" required class="mr-2"> Implementaciones complejas que requieren alta destreza analítica.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q20" value="B" class="mr-2"> Coordinación multiárea y gestión de interesados.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q20" value="C" class="mr-2"> Proyectos de impacto directo en la satisfacción del cliente.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q20" value="D" class="mr-2"> Reingeniería de procesos operativos y control presupuestal.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">21. Al seleccionar temas de lectura o investigación profesional:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q21" value="A" required class="mr-2"> Casos de estudio de éxito empresarial y avances técnicos.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q21" value="B" class="mr-2"> Artículos de psicología laboral, negociación y comunicación.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q21" value="C" class="mr-2"> Manuales de mejores prácticas y certificaciones de la industria.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q21" value="D" class="mr-2"> Publicaciones académicas y análisis estadísticos.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MÓDULO 8: PRIORIDADES -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h2 class="text-lg font-bold text-teal-900 border-b pb-2 mb-4 flex items-center gap-2">
+                        <span class="w-6 h-6 bg-teal-600 text-white rounded-full flex items-center justify-center text-xs">8</span>
+                        Prioridades & Valores de Trabajo
+                    </h2>
+                    
+                    <div class="space-y-6">
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">22. ¿Qué atributo valoras por encima de todo en una propuesta laboral?</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q22" value="A" required class="mr-2"> Oportunidades claras de crecimiento técnico y escalabilidad profesional.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q22" value="B" class="mr-2"> Estabilidad financiera, beneficios sólidos y seguridad de permanencia.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q22" value="C" class="mr-2"> Autonomía, flexibilidad de horarios y ambiente colaborativo.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q22" value="D" class="mr-2"> Reconocimiento por méritos y liderazgo visible en la organización.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">23. El entorno donde desarrollas tu máximo potencial se caracteriza por:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q23" value="A" required class="mr-2"> Retos constantes, metodologías ágiles y orientación a metas exigentes.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q23" value="B" class="mr-2"> Procesos definidos, manuales claros y supervisión estructurada.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q23" value="C" class="mr-2"> Clima organizacional armónico con bajo nivel de conflictividad.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q23" value="D" class="mr-2"> Alta velocidad de toma de decisiones sin trabas burocráticas.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">24. Ante compromisos concurrentes, tu regla de oro es:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q24" value="A" required class="mr-2"> Calidad técnica sin concesiones en los entregables clave.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q24" value="B" class="mr-2"> Cumplimiento estricto del cronograma pactado.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q24" value="C" class="mr-2"> Transparencia constante informando el estado del avance a los líderes.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q24" value="D" class="mr-2"> Equidad en la distribución del volumen de trabajo.</label>
+                            </div>
+                        </div>
+
+                        <div>
+                            <p class="font-semibold text-slate-800 text-sm mb-2">25. El factor principal que afecta negativamente tu productividad es:</p>
+                            <div class="space-y-2 text-sm">
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q25" value="A" required class="mr-2"> La microgestión, la falta de autonomía y el estancamiento profesional.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q25" value="B" class="mr-2"> La improvisación constante y los cambios sin fundamento técnico.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q25" value="C" class="mr-2"> El ambiente laboral tóxico o la falta de reconocimiento.</label>
+                                <label class="flex items-center p-2 border rounded hover:bg-slate-50 cursor-pointer"><input type="radio" name="q25" value="D" class="mr-2"> La falta de herramientas o infraestructura adecuada.</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="text-center pt-4">
+                    <button type="submit" class="w-full md:w-auto bg-gradient-to-r from-indigo-600 to-blue-700 hover:from-indigo-700 hover:to-blue-800 text-white font-bold py-4 px-12 rounded-xl shadow-lg transform transition active:scale-95 text-lg">
+                        Procesar Informe Ejecutivo de Selección
+                    </button>
+                </div>
+            </form>
+
+            <!-- ========================================== -->
+            <!-- SECCIÓN DE RESULTADOS: DASHBOARD RRHH      -->
+            <!-- ========================================== -->
+            <div id="results" class="hidden mt-6 space-y-8">
+                
+                <!-- BOTONES DE ACCIÓN (NO PRINT) -->
+                <div class="no-print flex justify-between items-center bg-slate-900 text-white p-4 rounded-xl">
+                    <div class="text-sm font-medium">
+                        <span class="inline-block w-2 h-2 bg-emerald-400 rounded-full mr-2"></span>
+                        Diagnóstico procesado exitosamente
+                    </div>
+                    <button onclick="window.print()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-2 px-6 rounded-lg text-sm flex items-center gap-2 shadow">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 002-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 002-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Exportar Informe PDF / Imprimir
+                    </button>
+                </div>
+
+                <!-- CABECERA RESUMEN DEL EVALUADO -->
+                <div class="bg-slate-50 border border-slate-200 p-6 rounded-xl grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div>
+                        <span class="block text-slate-500 text-xs font-bold uppercase">Candidato</span>
+                        <span id="resNombre" class="font-extrabold text-slate-800 text-base">---</span>
+                    </div>
+                    <div>
+                        <span class="block text-slate-500 text-xs font-bold uppercase">Puesto Aspirado</span>
+                        <span id="resPuesto" class="font-extrabold text-indigo-700 text-base">---</span>
+                    </div>
+                    <div>
+                        <span class="block text-slate-500 text-xs font-bold uppercase">Fecha de Proceso</span>
+                        <span id="resFecha" class="font-semibold text-slate-700">---</span>
+                    </div>
+                    <div>
+                        <span class="block text-slate-500 text-xs font-bold uppercase">Evaluador</span>
+                        <span class="font-semibold text-slate-700">Sistema RRHH Tecsofycom</span>
+                    </div>
+                </div>
+
+                <!-- 1. DASHBOARD EJECUTIVO DE KPIs -->
+                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                    <div class="bg-gradient-to-br from-indigo-700 to-indigo-900 text-white p-4 rounded-xl shadow">
+                        <div class="text-xs uppercase font-medium text-indigo-200">Compatibilidad</div>
+                        <div id="kpiCompatibilidad" class="text-3xl font-black mt-1">0%</div>
+                        <div class="text-[10px] text-indigo-300 mt-1">Índice Global Fit</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-blue-600 to-blue-800 text-white p-4 rounded-xl shadow">
+                        <div class="text-xs uppercase font-medium text-blue-200">Nivel Cognitivo</div>
+                        <div id="kpiCognitivo" class="text-xl font-extrabold mt-2">---</div>
+                        <div class="text-[10px] text-blue-300 mt-1">Razonamiento global</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-purple-600 to-purple-800 text-white p-4 rounded-xl shadow">
+                        <div class="text-xs uppercase font-medium text-purple-200">Potencial Liderazgo</div>
+                        <div id="kpiLiderazgo" class="text-xl font-extrabold mt-2">---</div>
+                        <div class="text-[10px] text-purple-300 mt-1">Gestión & Visión</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-emerald-600 to-emerald-800 text-white p-4 rounded-xl shadow">
+                        <div class="text-xs uppercase font-medium text-emerald-200">Adaptabilidad</div>
+                        <div id="kpiAdaptabilidad" class="text-xl font-extrabold mt-2">---</div>
+                        <div class="text-[10px] text-emerald-300 mt-1">Gestión del Cambio</div>
+                    </div>
+
+                    <div class="bg-gradient-to-br from-amber-600 to-amber-800 text-white p-4 rounded-xl shadow">
+                        <div class="text-xs uppercase font-medium text-amber-200">Riesgo Rotación</div>
+                        <div id="kpiRiesgo" class="text-xl font-extrabold mt-2">---</div>
+                        <div class="text-[10px] text-amber-300 mt-1">Estabilidad laboral</div>
+                    </div>
+
+                    <div id="cardClasificacion" class="p-4 rounded-xl shadow text-white flex flex-col justify-between">
+                        <div class="text-xs uppercase font-medium opacity-90">Dictamen Final</div>
+                        <div id="kpiClasificacion" class="text-2xl font-black mt-1">---</div>
+                        <div class="text-[10px] opacity-80">Selección RRHH</div>
+                    </div>
+                </div>
+
+                <!-- 5. CLASIFICACIÓN AUTOMÁTICA DESTACADA -->
+                <div id="bannerDictamen" class="p-5 rounded-xl border-l-8 shadow-sm">
+                    <!-- Dinámico -->
+                </div>
+
+                <!-- GRID PRINCIPAL: RADAR + BARRAS DE NIVEL -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- 2. RADAR DE COMPETENCIAS -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-base font-bold text-slate-800 border-b pb-2 mb-4 flex items-center justify-between">
+                                <span>Radar Multidimensional (8 Áreas)</span>
+                                <span class="text-xs font-normal text-slate-500">Escala de 0 a 100%</span>
+                            </h3>
+                            <div class="w-full max-w-md mx-auto my-auto py-2">
+                                <canvas id="radarChart"></canvas>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-500 text-center mt-2 italic">Mapeo holístico balanceado de las dimensiones del perfil profesional.</p>
+                    </div>
+
+                    <!-- 3 y 9. BARRAS DE NIVEL PROFESIONAL -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-base font-bold text-slate-800 border-b pb-2 mb-4">
+                            Indicadores por Competencia Evaluada
+                        </h3>
+                        <div id="skillsContainer" class="space-y-3">
+                            <!-- Inyectado por JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. SEMÁFORO DE RIESGO DE COMPETENCIAS -->
+                <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                    <h3 class="text-base font-bold text-slate-800 border-b pb-2 mb-4">
+                        Semáforo de Riesgo & Factores Críticos
+                    </h3>
+                    <div id="semaforoGrid" class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                        <!-- Inyectado por JS -->
+                    </div>
+                </div>
+
+                <!-- GRID SECUNDARIO: MATRIZ DE FORTALEZAS Y ANÁLISIS IA -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    
+                    <!-- 4. MATRIZ DE FORTALEZAS Y BRECHAS -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-base font-bold text-slate-800 border-b pb-2 mb-4">
+                            Matriz de Fortalezas & Competencias
+                        </h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-sm text-left">
+                                <thead class="bg-slate-100 text-slate-700 text-xs uppercase">
+                                    <tr>
+                                        <th class="p-2.5 rounded-l">Competencia</th>
+                                        <th class="p-2.5">Nivel</th>
+                                        <th class="p-2.5 rounded-r">Evaluación</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaFortalezas" class="divide-y text-xs md:text-sm">
+                                    <!-- Inyectado por JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- 6. ANÁLISIS PROFESIONAL POR IA -->
+                    <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                        <h3 class="text-base font-bold text-slate-800 border-b pb-2 mb-4">
+                            Análisis Psicométrico Descriptivo
+                        </h3>
+                        <div id="analisisTexto" class="text-sm text-slate-700 space-y-3 leading-relaxed">
+                            <!-- Inyectado dinámicamente -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. PERFIL OCUPACIONAL RECOMENDADO -->
+                <div class="bg-slate-900 text-white p-6 rounded-xl shadow-lg">
+                    <h3 class="text-base font-bold text-indigo-400 border-b border-slate-800 pb-2 mb-4 uppercase tracking-wider">
+                        Puestos y Roles Ocupacionales Compatibles
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <p class="text-xs text-slate-400 mb-3">Roles recomendados según el patrón de aptitudes e intereses:</p>
+                            <ul id="puestosLista" class="space-y-2 text-sm">
+                                <!-- Inyectado por JS -->
+                            </ul>
+                        </div>
+                        <div class="bg-slate-800/80 p-4 rounded-lg border border-slate-700 flex flex-col justify-center items-center text-center">
+                            <span class="text-xs font-bold text-slate-400 uppercase">Compatibilidad Estimada del Candidato</span>
+                            <span id="compatibilidadPuestoPct" class="text-4xl font-black text-emerald-400 my-1">0%</span>
+                            <p class="text-xs text-slate-300">Basado en la correlación entre su razonamiento analítico y estilo de trabajo.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FOOTER INFORME -->
+                <div class="border-t pt-4 text-xs text-slate-500 flex justify-between items-center">
+                    <p>Informe generado automáticamente por el Sistema Psicométrico de Reclutamiento.</p>
+                    <p>Confidencial - Uso Exclusivo de Recursos Humanos</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DE LÓGICA Y EVALUACIÓN -->
+    <script>
+        // Instancia global para el gráfico radar
+        let chartInstance = null;
+
+        // Establecer fecha actual por defecto
+        document.getElementById('fechaEvaluacion').valueAsDate = new Date();
+
+        // Algoritmo de aleatorización Fisher-Yates
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        // Aleatorizar las alternativas de respuesta dinámicamente al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            const optionContainers = document.querySelectorAll('#quizForm .grid, #quizForm .space-y-2');
+            
+            optionContainers.forEach(container => {
+                const labels = Array.from(container.children).filter(child => child.tagName === 'LABEL');
+                if (labels.length > 1) {
+                    const shuffledLabels = shuffleArray(labels);
+                    shuffledLabels.forEach(label => container.appendChild(label));
+                }
+            });
+        });
+
+        function calcularResultados() {
+            // 1. Evaluación Cognitiva Estricta (Q1, Q2, Q3, Q7, Q8, Q9)
+            const respCognitivas = { q1: 'B', q2: 'B', q3: 'B', q7: 'B', q8: 'B', q9: 'B' };
+            let aciertosCognitivos = 0;
+            for (let q in respCognitivas) {
+                const sel = document.querySelector(`input[name="${q}"]:checked`);
+                if (sel && sel.value === respCognitivas[q]) {
+                    aciertosCognitivos++;
+                }
+            }
+
+            // Calculo individual de dimensiones (Escala 0 - 100%)
+            const inteligencia = Math.round((aciertosCognitivos / 6) * 100);
+            const resolucion = calcularPromedioOpciones(['q4', 'q5', 'q6']);
+            const comprension = inteligencia; // Vinculado a la capacidad verbal/analítica observada
+            const personalidad = calcularPromedioOpciones(['q10', 'q11', 'q12']);
+            const vocacion = calcularPromedioOpciones(['q13', 'q14', 'q15']);
+            const aptitudes = calcularPromedioOpciones(['q16', 'q17', 'q18']);
+            const intereses = calcularPromedioOpciones(['q19', 'q20', 'q21']);
+            const prioridades = calcularPromedioOpciones(['q22', 'q23', 'q24', 'q25']);
+
+            // Índice Global de Compatibilidad
+            const compatibilidad = Math.round(
+                (inteligencia + resolucion + comprension + personalidad + vocacion + aptitudes + intereses + prioridades) / 8
+            );
+
+            // Inyección de datos personales
+            document.getElementById('resNombre').innerText = document.getElementById('nombreCandidato').value || 'Candidato Evaluado';
+            document.getElementById('resPuesto').innerText = document.getElementById('puestoCandidato').value || 'No Especificado';
+            document.getElementById('resFecha').innerText = document.getElementById('fechaEvaluacion').value;
+
+            // Mostrar el Dashboard
+            document.getElementById('results').classList.remove('hidden');
+
+            // Actualizar KPIs del Dashboard Ejecutivo
+            document.getElementById('kpiCompatibilidad').innerText = compatibilidad + '%';
+            document.getElementById('kpiCognitivo').innerText = inteligencia >= 80 ? 'ALTO' : (inteligencia >= 60 ? 'MEDIO' : 'BÁSICO');
+            document.getElementById('kpiLiderazgo').innerText = (vocacion >= 80 && personalidad >= 70) ? 'ALTO' : ((vocacion >= 60) ? 'MEDIO' : 'BAJO');
+            document.getElementById('kpiAdaptabilidad').innerText = personalidad >= 80 ? 'ALTA' : (personalidad >= 60 ? 'MEDIA' : 'MODERADA');
+            document.getElementById('kpiRiesgo').innerText = prioridades >= 75 ? 'BAJO' : (prioridades >= 55 ? 'MEDIO' : 'ALTO');
+
+            // Clasificación y Card
+            const cardClasif = document.getElementById('cardClasificacion');
+            const kpiClasif = document.getElementById('kpiClasificacion');
+            const bannerDictamen = document.getElementById('bannerDictamen');
+
+            if (compatibilidad >= 80) {
+                cardClasif.className = "p-4 rounded-xl shadow text-white bg-gradient-to-br from-emerald-600 to-green-800";
+                kpiClasif.innerText = "APTO";
+                bannerDictamen.className = "bg-green-50 border-l-8 border-green-600 p-5 rounded-r-xl shadow-sm";
+                bannerDictamen.innerHTML = `
+                    <h3 class="text-lg font-bold text-green-900">DICTAMEN: CANDIDATO APTO (ALTO POTENCIAL)</h3>
+                    <p class="text-sm text-green-800 mt-1">
+                        El postulante demuestra competencias sobresalientes en razonamiento, capacidad analítica y alineación laboral.
+                        Supera los requerimientos estándar para el perfil profesional solicitado.
+                    </p>`;
+            } else if (compatibilidad >= 65) {
+                cardClasif.className = "p-4 rounded-xl shadow text-white bg-gradient-to-br from-amber-500 to-yellow-700";
+                kpiClasif.innerText = "OBSERVADO";
+                bannerDictamen.className = "bg-amber-50 border-l-8 border-amber-500 p-5 rounded-r-xl shadow-sm";
+                bannerDictamen.innerHTML = `
+                    <h3 class="text-lg font-bold text-amber-900">DICTAMEN: APTO CON OBSERVACIONES</h3>
+                    <p class="text-sm text-amber-800 mt-1">
+                        El candidato reúne los requisitos básicos para la posición, aunque presenta brechas específicas que pueden mitigarse con inducción y acompañamiento directivo.
+                    </p>`;
+            } else {
+                cardClasif.className = "p-4 rounded-xl shadow text-white bg-gradient-to-br from-red-600 to-rose-800";
+                kpiClasif.innerText = "NO APTO";
+                bannerDictamen.className = "bg-red-50 border-l-8 border-red-600 p-5 rounded-r-xl shadow-sm";
+                bannerDictamen.innerHTML = `
+                    <h3 class="text-lg font-bold text-red-900">DICTAMEN: CANDIDATO NO RECOMENDADO</h3>
+                    <p class="text-sm text-red-800 mt-1">
+                        El nivel actual de competencias analíticas o adecuación conductual no satisface los umbrales exigidos para el perfil postulado.
+                    </p>`;
+            }
+
+            // Generar componentes visuales
+            renderRadar(inteligencia, resolucion, comprension, personalidad, vocacion, aptitudes, intereses, prioridades);
+            renderBarrasProgreso([
+                ["Inteligencia Lógica", inteligencia],
+                ["Resolución de Problemas", resolucion],
+                ["Comprensión Verbal", comprension],
+                ["Personalidad & Estrés", personalidad],
+                ["Vocación & Liderazgo", vocacion],
+                ["Aptitudes Técnicas", aptitudes],
+                ["Intereses Profesionales", intereses],
+                ["Prioridades & Valores", prioridades]
+            ]);
+            renderSemaforo(inteligencia, resolucion, personalidad, aptitudes, prioridades);
+            renderTablaFortalezas(inteligencia, resolucion, personalidad, vocacion);
+            renderAnalisisIA(compatibilidad, inteligencia, resolucion, personalidad);
+            renderPuestosOcupacionales(compatibilidad, vocacion, inteligencia);
+
+            // Scroll suave hacia los resultados
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Función auxiliar para ponderación de opciones A, B, C, D
+        function calcularPromedioOpciones(lista) {
+            let acumulado = 0;
+            lista.forEach(q => {
+                const el = document.querySelector(`input[name="${q}"]:checked`);
+                if (el) {
+                    if (el.value === 'A') acumulado += 100;
+                    else if (el.value === 'B') acumulado += 80;
+                    else if (el.value === 'C') acumulado += 60;
+                    else acumulado += 40;
+                }
+            });
+            return Math.round(acumulado / lista.length);
+        }
+
+        // Radar de Competencias con Chart.js
+        function renderRadar(i, r, c, p, v, a, inT, pr) {
+            const ctx = document.getElementById('radarChart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
+                type: 'radar',
+                data: {
+                    labels: ['Inteligencia', 'Resolución', 'Comprensión', 'Personalidad', 'Vocación', 'Aptitudes', 'Intereses', 'Prioridades'],
+                    datasets: [{
+                        label: 'Nivel del Candidato (%)',
+                        data: [i, r, c, p, v, a, inT, pr],
+                        backgroundColor: 'rgba(79, 70, 229, 0.25)',
+                        borderColor: 'rgba(79, 70, 229, 1)',
+                        borderWidth: 2,
+                        pointBackgroundColor: 'rgba(79, 70, 229, 1)',
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        r: {
+                            angleLines: { color: '#e2e8f0' },
+                            grid: { color: '#cbd5e1' },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { stepSize: 20, display: false }
+                        }
+                    },
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+        }
+
+        // Renderizado de Barras de Progreso Animadas
+        function renderBarrasProgreso(data) {
+            let html = '';
+            data.forEach(item => {
+                let colorBar = 'bg-indigo-600';
+                if (item[1] < 60) colorBar = 'bg-amber-500';
+                if (item[1] < 40) colorBar = 'bg-red-500';
+
+                html += `
+                <div>
+                    <div class="flex justify-between text-xs font-semibold mb-1">
+                        <span class="text-slate-700">${item[0]}</span>
+                        <span class="text-slate-900 font-bold">${item[1]}%</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden border border-slate-200">
+                        <div class="${colorBar} h-3 rounded-full transition-all duration-1000" style="width: ${item[1]}%"></div>
+                    </div>
+                </div>`;
+            });
+            document.getElementById('skillsContainer').innerHTML = html;
+        }
+
+        // Semáforo de Riesgo
+        function renderSemaforo(i, r, p, a, pr) {
+            const items = [
+                { nombre: 'Adaptación Org.', val: p },
+                { nombre: 'Aprendizaje', val: i },
+                { nombre: 'Liderazgo Potencial', val: r },
+                { nombre: 'Trabajo Bajo Presión', val: p },
+                { nombre: 'Alineación de Valores', val: pr }
+            ];
+
+            let html = '';
+            items.forEach(it => {
+                let colorClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+                let dotColor = 'bg-emerald-500';
+                let estado = 'Óptimo';
+
+                if (it.val < 70 && it.val >= 50) {
+                    colorClass = 'bg-amber-100 text-amber-800 border-amber-300';
+                    dotColor = 'bg-amber-500';
+                    estado = 'Moderado';
+                } else if (it.val < 50) {
+                    colorClass = 'bg-red-100 text-red-800 border-red-300';
+                    dotColor = 'bg-red-500';
+                    estado = 'Riesgo';
+                }
+
+                html += `
+                <div class="p-3 border rounded-lg ${colorClass} flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold">${it.nombre}</p>
+                        <p class="text-[10px] opacity-80">${estado}</p>
+                    </div>
+                    <span class="w-3 h-3 rounded-full ${dotColor} shadow-sm"></span>
+                </div>`;
+            });
+            document.getElementById('semaforoGrid').innerHTML = html;
+        }
+
+        // Matriz de Fortalezas
+        function renderTablaFortalezas(i, r, p, v) {
+            const filas = [
+                { comp: 'Pensamiento Analítico', pct: i },
+                { comp: 'Resolución de Conflictos', pct: r },
+                { comp: 'Resiliencia & Estrés', pct: p },
+                { comp: 'Capacidad de Liderazgo', pct: v }
+            ];
+
+            let html = '';
+            filas.forEach(f => {
+                let nivel = 'Alto';
+                let evalText = 'Excelente';
+                let badgeClass = 'bg-emerald-100 text-emerald-800';
+
+                if (f.pct < 75 && f.pct >= 55) {
+                    nivel = 'Medio';
+                    evalText = 'Adecuado';
+                    badgeClass = 'bg-blue-100 text-blue-800';
+                } else if (f.pct < 55) {
+                    nivel = 'Bajo';
+                    evalText = 'En Desarrollo';
+                    badgeClass = 'bg-amber-100 text-amber-800';
+                }
+
+                html += `
+                <tr>
+                    <td class="p-2.5 font-semibold text-slate-800">${f.comp}</td>
+                    <td class="p-2.5">${f.pct}%</td>
+                    <td class="p-2.5"><span class="px-2 py-0.5 rounded text-xs font-bold ${badgeClass}">${evalText} (${nivel})</span></td>
+                </tr>`;
+            });
+            document.getElementById('tablaFortalezas').innerHTML = html;
+        }
+
+        // Análisis Psicométrico por IA
+        function renderAnalisisIA(compatibilidad, i, r, p) {
+            let texto = '';
+            
+            if (compatibilidad >= 80) {
+                texto = `
+                <p>El evaluado evidencia una <strong>capacidad de razonamiento lógico y verbal superior al promedio</strong>, destacando en el procesamiento metódico de datos complejos y toma de decisiones.</p>
+                <p>Presenta un estilo de trabajo orientado a la consecución de objetivos estratégicos, alta estabilidad ante entornos exigentes y disposición constante para el desarrollo profesional continuo.</p>
+                <p>Su perfil resulta altamente compatible con posiciones que requieren planificación analítica, coordinación de equipos técnicos y liderazgo de proyectos.</p>`;
+            } else if (compatibilidad >= 60) {
+                texto = `
+                <p>El evaluado demuestra un <strong>nivel cognitivo y resolutivo funcional y equilibrado</strong>, adaptándose favorablemente a esquemas de trabajo estructurados e instrucciones estandarizadas.</p>
+                <p>Muestra adecuada disposición al trabajo colaborativo, con un nivel de resiliencia moderado que se beneficia de metas bien delimitadas y supervisión periódica.</p>
+                <p>Se sugiere para puestos operativos o de asistencia técnica donde pueda consolidar sus habilidades de gestión.</p>`;
+            } else {
+                texto = `
+                <p>El postulante refleja un <strong>desempeño en desarrollo</strong> respecto a los parámetros exigidos para posiciones de alta exigencia analítica.</p>
+                <p>Se observan oportunidades de mejora en la interpretación de problemas complejos bajo presión e integración a dinámicas organizacionales de ritmo acelerado.</p>
+                <p>Se recomienda acompañamiento cercano o programas de capacitación si se contempla su incorporación a áreas operativas.</p>`;
+            }
+
+            document.getElementById('analisisTexto').innerHTML = texto;
+        }
+
+        // Puestos Recomendados
+        function renderPuestosOcupacionales(compatibilidad, v, i) {
+            let html = '';
+            
+            if (compatibilidad >= 80) {
+                html = `
+                <li class="flex items-center gap-2 text-emerald-300">✓ <span>Analista de Sistemas / Proyectos Senior</span></li>
+                <li class="flex items-center gap-2 text-emerald-300">✓ <span>Supervisor / Jefe de Operaciones</span></li>
+                <li class="flex items-center gap-2 text-emerald-300">✓ <span>Coordinador Técnico o Consultor</span></li>
+                <li class="flex items-center gap-2 text-emerald-300">✓ <span>Especialista en Infraestructura / Datos</span></li>`;
+            } else if (compatibilidad >= 60) {
+                html = `
+                <li class="flex items-center gap-2 text-amber-300">✓ <span>Asistente Técnico Administrativo</span></li>
+                <li class="flex items-center gap-2 text-amber-300">✓ <span>Soporte Operativo Especializado</span></li>
+                <li class="flex items-center gap-2 text-amber-300">✓ <span>Coordinador Junior de Procesos</span></li>`;
+            } else {
+                html = `
+                <li class="flex items-center gap-2 text-rose-300">✓ <span>Puestos Operativos Supervisados</span></li>
+                <li class="flex items-center gap-2 text-rose-300">✓ <span>Programa de Trainee / Formación Inicial</span></li>`;
+            }
+
+            document.getElementById('puestosLista').innerHTML = html;
+            document.getElementById('compatibilidadPuestoPct').innerText = compatibilidad + '%';
+        }
+    </script>
+</body>
+</html>
